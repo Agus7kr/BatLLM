@@ -196,3 +196,57 @@ El documento completo, con pasos exactos, entorno, tablas por turno y límites, 
 **Reflexión:** al preparar la explicación del turno de la corrida 2 vi que me faltaba entender mejor la decodificación, y por eso estudié las diapositivas. Todavía me cuesta el concepto de activación.
 
 **Siguiente paso:** esperar la revisión y el consenso del grupo para integrar el PR, sin mergearlo yo. Retomar las diapositivas desde la 8.
+
+---
+
+## 2026-11-17 - Clase 4 y coordinación del taller
+
+**Tiempo y participantes:** 1 h de preparación individual y 1 h de clase.
+
+**Trabajo:** revisé el caso de varios comandos en una respuesta y planteé mis dudas sobre el parser y el prompt. En clase se aclaró que el rechazo de varios comandos es parte del diseño. Acordamos vincular el trabajo no trivial a un issue y revisar PRs ajenos.
+
+**Resultado:** para el 24/11 quedaron el recorrido completo de una jugada, la comparación A/B de prompts, la preparación de un issue y la revisión del PR #1.
+
+---
+
+## 2026-11-23 - Investigación del Game Analyzer
+
+**Tiempo y participantes:** 4 h 30 min de trabajo individual.
+
+**Trabajo:** investigué cómo el Game Analyzer carga las sesiones v2 y reconstruye el tablero jugada por jugada. Revisé las pruebas existentes, qué datos guarda el formato y el caso de los turnos vacíos como posible contribución. También revisé el A/B, los marcadores del prompt y la configuración.
+
+---
+
+## 2026-11-24 - Game Analyzer y prueba exploratoria de prompts
+
+**Tiempo y participantes:** 4 h de trabajo individual, descontando dos pausas de 30 min.
+
+**Contexto:** BatLLM 0.3.6 en Windows, con llama3.2:3b
+
+1. **Game Analyzer**
+
+   **Trabajo:** abrí la corrida 2 del 09/11 en Game Analyzer, comparé el prompt y el estado inicial del bot 1 con el registro del debugger y revisé las dos jugadas del turno 1. También exploré los filtros Errors y Mismatch del árbol de turnos.
+
+   **Evidencia:** [sesión guardada de la corrida 2](sesiones/2026-11-09-corrida2.json).
+
+   **Resultado:** lo mostrado por el Game Analyzer coincide con lo que había analizado anteriormente con el debugger, incluido el prompt y el estado inicial visible del bot 1. HistoryManager guardó la respuesta cruda A66\nS\nB y el comando ERR. El tablero quedó igual en T1:1. En T1:2, State Diff mostró que el bot 2 giró 60° en sentido antihorario, de 230.9° a 170.9°. El replay del turno 1 coincidió con el estado guardado.
+
+2. **Prueba exploratoria de prompts**
+
+   **Trabajo:** hice una corrida exploratoria con un tablero nuevo y reformulé los prompts de ambos bots para pedir una acción por respuesta y usar la respuesta anterior para elegir la siguiente. El giro pedido al bot 2 cambió de 60° a 66°.
+
+   **Evidencia:** [sesión con el prompt reformulado](sesiones/2026-11-24-prompt-mejorado.json).
+
+   **Resultado:** en la corrida exploratoria, las 16 respuestas de la primera ronda tuvieron un solo comando válido (0 ERR). Ambos bots devolvieron A66 en el primer turno, aunque al bot 2 se le pidió un giro horario. En el segundo turno, el bot 1 mantuvo el escudo arriba con S1, aunque se le había pedido bajarlo. El bot 2 lo bajó con S0. No hubo daño. Cambiaron el tablero y ambos prompts, así que la comparación con el 09/11 es exploratoria.
+
+   **Reflexión:** mi hipótesis es que aclarar cómo repartir la secuencia en una acción por respuesta ayudó a evitar los ERR. Los comandos válidos todavía se apartaron de la secuencia. Por ejemplo, en el turno 4 el bot 2 mantuvo el escudo abajo con S0 cuando tocaba subirlo. Queda por probar si la dificultad está en seguir la secuencia repetida.
+
+3. **Revisión de posibles issues del Game Analyzer**
+
+   **Resultado:** por ahora encontré un único problema menor. Al cambiar de turno con los controles del replay, el árbol sigue resaltando el último turno seleccionado.
+
+   **Evidencia:** [Observación reproducible 2](experimentos/observacion-reproducible-2.md).
+
+4. **Actualización de documentación**
+
+   Se agregaron nuevas entradas a la bitácora de los días 17, 23 y 24/11 e incorporé dos archivos de evidencia: la sesión de la prueba exploratoria de prompts y la observación reproducible sobre el resaltado del turno en Game Analyzer.
